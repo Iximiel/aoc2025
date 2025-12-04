@@ -40,3 +40,10 @@ In the end the second part was just a matter of knowlege of how the regex work.
 Maybe you can solve it by looking at x and x+half to see if they are always equal
 (and change the half in something else for the secon part) might be more efficient,
 but the low hanging fruit here was the regex engine that someone already built for me
+
+## Puzzle 3
+
+This looks easy at firt sight: get the highest number by combining two digits in order in the same row.
+The bruteforce approach might be to take the nth digit, and sort the array from n+1 by getting the highest number, rinse and repeat for the others, then take the highest nth + other  couple.
+I am sure that there is an algorithm that does this at command, but I cannot think about it now
+In the end I did not bruteforced part1 in the way I explained above: i walked the array backward, storing the biggest digit found until that step and I summed it to 10* the current digit, and stored the bigged sum found
