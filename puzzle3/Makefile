@@ -1,6 +1,6 @@
 all: run
 
-.PHONY:run
+.PHONY:run clean
 
 run: puzzle3.x
 	@./puzzle3.x
@@ -8,3 +8,5 @@ run: puzzle3.x
 
 %.x:%.cpp
 	$(CXX) -O3 -g $< -o $@
+clean:
+	@rm -rf *.x

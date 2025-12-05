@@ -55,3 +55,11 @@ I followed a similar strategy for part2:
    - then repeat this with the next significant digit using the swapped out digit
    - repeat this until there are no more digits in the result array or if the swap did not happened
  - turns out that to work the "bigger" should be and "bigger or equal", luckily the authors of aoc give us a very generous test set that caught that hiccup
+
+## Puzzle 4
+
+For part1 is matter of counting neigbors, it looks easy, so that I am sure that will be 
+a "we did it not because it is easy, but becasue we tought it was easy" situation.
+
+I want to try to store the data using less memory possible
+
