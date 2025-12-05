@@ -66,4 +66,11 @@ I want to try to store the data using less memory possible
 So I used the std::biset, that was a good idea becasue part 2 felt like a breeze thanks to the bitwise logic :3
 
 
+## Puzzle 5
+
+This seems easy, after puzzle 1 now I will use 64 bit integer for life.
+First part is count numbers within interval once.
+
+Second part is counting all the number in the intervals, but avoiding double counting.
+I think I will go for a sane "merging the intervals, then sum all the ranges"
 
