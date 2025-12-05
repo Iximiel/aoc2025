@@ -63,3 +63,7 @@ a "we did it not because it is easy, but becasue we tought it was easy" situatio
 
 I want to try to store the data using less memory possible
 
+So I used the std::biset, that was a good idea becasue part 2 felt like a breeze thanks to the bitwise logic :3
+
+
+
