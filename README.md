@@ -47,3 +47,11 @@ This looks easy at firt sight: get the highest number by combining two digits in
 The bruteforce approach might be to take the nth digit, and sort the array from n+1 by getting the highest number, rinse and repeat for the others, then take the highest nth + other  couple.
 I am sure that there is an algorithm that does this at command, but I cannot think about it now
 In the end I did not bruteforced part1 in the way I explained above: i walked the array backward, storing the biggest digit found until that step and I summed it to 10* the current digit, and stored the bigged sum found
+
+I followed a similar strategy for part2:
+
+ - store the 12 digit of the final number in an array
+ - if the new digit is bigger than the most significant one swap it with that in that case
+   - then repeat this with the next significant digit using the swapped out digit
+   - repeat this until there are no more digits in the result array or if the swap did not happened
+ - turns out that to work the "bigger" should be and "bigger or equal", luckily the authors of aoc give us a very generous test set that caught that hiccup
