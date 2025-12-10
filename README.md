@@ -72,5 +72,13 @@ This seems easy, after puzzle 1 now I will use 64 bit integer for life.
 First part is count numbers within interval once.
 
 Second part is counting all the number in the intervals, but avoiding double counting.
-I think I will go for a sane "merging the intervals, then sum all the ranges"
+I think I will go for a sane "merging the intervals, then sum all the ranges". It worked, but I had to go to reddit and found that the key was to sort.
+
+## Puzzle 6
+
+This was a parser problem, the "difficult" part in part 1 was to understand how many entries per line per file.
+I hardcoded the number of lines for my sanity.
+
+And I took the apporach of reaading again and again the file to have a easier and more straighforward logic that trying with a smart solution and failing spectacularly.
+
 
