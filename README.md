@@ -87,3 +87,9 @@ I am solving a simplified wave equation?
 Maybe not, just counting the splits was easier that read, I had to count the number of splitter that have been hit.
 
 Let's see what is the evilness in the second part
+
+It it a mathematical evilness, I know there is a formula, but I have to remember it (or I can bruteforce this in the most recursive way possible)
+
+Basically the solution is walking the tree in all the possible combinations. With the twist that this is not a binary tree, but a node can be tranversed in some different paths (all the paths have the same lenght, at least)
+
+I'll try by creating a second array with the number of each possible path that bringed there, and then sum
