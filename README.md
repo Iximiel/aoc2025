@@ -93,3 +93,16 @@ It it a mathematical evilness, I know there is a formula, but I have to remember
 Basically the solution is walking the tree in all the possible combinations. With the twist that this is not a binary tree, but a node can be tranversed in some different paths (all the paths have the same lenght, at least)
 
 I'll try by creating a second array with the number of each possible path that bringed there, and then sum
+
+__PRO TIP:__
+changing 
+```c++
+  splits2 = std::accumulate(paths.back().begin(), paths.back().end(), 0);
+```
+into
+```c++
+  splits2 = std::accumulate(paths.back().begin(), paths.back().end(), 0ull);
+```
+will solve the puzzle
+
+## Puzzle 8

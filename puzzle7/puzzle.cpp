@@ -15,9 +15,9 @@ int main() {
   std::ifstream f("./Input.txt");
 #endif
   long splits1 = 0;
-  long splits2 = 0;
+  unsigned long splits2 = 0;
   std::vector<std::string> lines;
-  std::vector<std::array<long, lineL>> paths;
+  std::vector<std::array<unsigned long long, lineL>> paths;
   {
     std::string line;
     while (!getline(f, line).eof()) {
@@ -32,8 +32,8 @@ int main() {
 
   for (unsigned i = 0; i < lines.size() - 1; ++i) {
     for (unsigned j = 0; j < lines[i].size(); ++j) {
-      auto timelines = paths[i][j];
       if (lines[i][j] == 'S') {
+        const auto timelines = paths[i][j];
         // i+1 can't be lines.size();
         switch (lines[i + 1][j]) {
         case '.':
@@ -45,7 +45,6 @@ int main() {
           paths[i + 1][j] += timelines;
           break;
         case '^': {
-          paths[i + 1][j] = -1;
           splits1++;
           // split
           std::vector<unsigned> next;
@@ -66,7 +65,7 @@ int main() {
       }
     }
   }
-  splits2 = std::accumulate(paths.back().begin(), paths.back().end(), 0);
-  std::cout << "splits part1: " << splits1 << "\n";
-  std::cout << "splits part2: " << splits2 << "\n";
+  splits2 = std::accumulate(paths.back().begin(), paths.back().end(), 0ull);
+  std::cout << "splits    part1: " << splits1 << "\n";
+  std::cout << "timelines part2: " << splits2 << "\n";
 }
