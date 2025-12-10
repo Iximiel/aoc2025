@@ -106,3 +106,5 @@ into
 will solve the puzzle
 
 ## Puzzle 8
+
+Day 8 part 1 looks familiar to me (I may steal something like the "makewhole" functionality from PLUMED)
