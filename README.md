@@ -81,4 +81,9 @@ I hardcoded the number of lines for my sanity.
 
 And I took the apporach of reaading again and again the file to have a easier and more straighforward logic that trying with a smart solution and failing spectacularly.
 
+## Puzzle 7
 
+I am solving a simplified wave equation?
+Maybe not, just counting the splits was easier that read, I had to count the number of splitter that have been hit.
+
+Let's see what is the evilness in the second part
