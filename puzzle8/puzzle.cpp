@@ -74,6 +74,11 @@ public:
       collapse_rec(i);
     }
   }
+  bool allConnected() {
+    collapse();
+    return std::all_of(circuits.begin(), circuits.end(),
+                       [i = circuits[0]](unsigned long x) { return i == x; });
+  }
   auto counts() {
     std::vector<size_t> sizes;
     for (unsigned c = 0; c < circuits.size(); ++c) {
@@ -108,44 +113,60 @@ int main() {
   //   std::cerr << x.x << " " << x.y << " " << x.z << "\n";
   // }
   std::vector<weightedCouple> couples;
-  couples.reserve(connections);
+  couples.reserve((connections * (connections + 1)) / 2);
   for (unsigned i = 0; i < boxes.size(); ++i) {
     for (unsigned j = i + 1; j < boxes.size(); ++j) {
       // the following line is added for the lulz
       assert(distance(boxes[i], boxes[j]) == distance(boxes[j], boxes[i]));
       weightedCouple x{distance(boxes[i], boxes[j]), i, j};
-      if (couples.size() < connections) {
-        couples.push_back(x);
-        if (couples.size() == connections) {
-          std::make_heap(couples.begin(), couples.end());
-        }
-      } else {
-        if (x.d < couples[0].d) {
-          // we pop away the highest distance and we add
-          // the new couple
-          std::pop_heap(couples.begin(), couples.end());
-          // the highes value is now the last element,
-          // we substitute that and
-          // we push the new element in the heap
-          couples.back() = x;
-          std::push_heap(couples.begin(), couples.end());
-        }
-      }
+      couples.push_back(x);
+      /* removing the cool heap trick I did for part 1
+if (couples.size() < connections) {
+couples.push_back(x);
+if (couples.size() == connections) {
+std::make_heap(couples.begin(), couples.end());
+}
+} else {
+if (x.d < couples[0].d) {
+// we pop away the highest distance and we add
+// the new couple
+std::pop_heap(couples.begin(), couples.end());
+// the highes value is now the last element,
+// we substitute that and
+// we push the new element in the heap
+couples.back() = x;
+std::push_heap(couples.begin(), couples.end());
+}
+}*/
     }
   }
-  std::sort_heap(couples.begin(), couples.end());
+  std::sort(couples.begin(), couples.end());
   // linking phase: creating some graphs and merging them
   //  de facto the couples list is a list of linkages between two nodes
   // each box belong to its own circuit
   Circuits circuits(boxes.size());
   // setting up a set for not tranversing everithing
-  for (auto [w, i, j] : couples) {
-    circuits.unite(i, j);
+  for (unsigned i = 0; i < connections; ++i) {
+    circuits.unite(couples[i].i, couples[i].j);
     // we fold on the smallest or on the already existing circuit
   }
   circuits.collapse();
   std::vector<size_t> sizes = circuits.counts();
   uint64_t mul3 = sizes[0] * sizes[1] * sizes[2];
   std::cout << "the three circuits part1: " << mul3 << "\n";
-  //  std::cout << "timelines part2: " << splits2 << "\n";
+  for (unsigned i = 0; i < connections; ++i) {
+    circuits.unite(couples[i].i, couples[i].j);
+    // we fold on the smallest or on the already existing circuit
+  }
+
+  uint64_t xtimesx = 1;
+  for (unsigned i = connections; i < couples.size(); ++i) {
+    circuits.unite(couples[i].i, couples[i].j);
+    if (circuits.allConnected()) {
+      xtimesx = boxes[couples[i].i].x * boxes[couples[i].j].x;
+      break;
+    }
+    // we fold on the smallest or on the already existing circuit
+  }
+  std::cout << "extension chord part2: " << xtimesx << "\n";
 }
