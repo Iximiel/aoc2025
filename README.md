@@ -108,3 +108,5 @@ will solve the puzzle
 ## Puzzle 8
 
 Day 8 part 1 looks familiar to me (I may steal something like the "makewhole" functionality from PLUMED)
+
+I searched what a DSU is, and I sorta implemented one, then I implemented a proper one for the part 1 and succeed.
