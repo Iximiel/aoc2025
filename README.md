@@ -112,3 +112,9 @@ Day 8 part 1 looks familiar to me (I may steal something like the "makewhole" fu
 I searched what a DSU is, and I sorta implemented one, then I implemented a proper one for the part 1 and succeed.
 
 Second part was easier than I hoped, basically is the first one, but "heavier" on the machine (a ~1000x1000 array is not that heavy), I had to remove the heap I used in part1 becasue I needed all the distances
+
+##Puzzle 9
+
+Part 1 is suspiciosly too simple.
+
+Part 2 is evil at first read, now I have to check that the rectangle is completely encased within the area that is traced by the given points
