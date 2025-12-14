@@ -7,6 +7,6 @@ run: puzzle.x
 
 
 %.x:%.cpp
-	$(CXX) -std=c++20 -O3 -g $< -o $@
+	$(CXX) -std=c++20 -O3 -g $< -o $@ 
 clean:
 	@rm -rf *.x

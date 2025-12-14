@@ -119,4 +119,12 @@ Part 1 is suspiciosly too simple.
 
 Part 2 is evil at first read, now I have to check that the rectangle is completely encased within the area that is traced by the given points
 
-I digged a little. I'll go for a PIP problem, and I will go for the crossing algorithm for checking that each point of the rectangle is within the given shape
+I digged a little. I'll go for a PIP problem, and I will go for the crossing algorithm for checking that each point of the rectangle is within the given shape. This is sort of O(N^(>3)), so it is not viable, on my pc. I do not want to paralelize on a 4 cores laptop cpu, neither use cuda...
+
+In the end I am trying some number of different algorihms
+the most promising was checking if any red tile is within the rectangle, but the overall shape is concave, so I get to accept completely external triangles... It fast, but not correct...
+ 
+Now I found a way to check if two polygons overlap on rosettacode and I am trying it, it is easier since here all edges are perpendicular, bur we'll see
+
+In the end I got back to the point in poligon, but I added  bands in syle of subcells in molecular dynamics, so that I will cast the ray only trought edges in a limited band of y values for each point I will control.
+This is FASTER than before, but the answer is wrong, I should do day 10, but I can't do those puzzles IRL, I need to study and I do not want to give up on this, at least for now
