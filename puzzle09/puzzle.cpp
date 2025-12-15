@@ -7,6 +7,7 @@
 #include <memory>
 #include <numeric>
 #include <ostream>
+#include <unordered_set>
 #include <vector>
 // todo: map the distances (in a heap?) the input i the usual > 5KiB
 // connect the fuses
@@ -73,7 +74,6 @@ class polygon {
         x = a.x;
         l = std::min(a.y, b.y);
         h = std::max(a.y, b.y);
-        y = h;
       } else {
         assert(a.y == b.y);
         vertical = false;
@@ -85,160 +85,103 @@ class polygon {
   };
   std::vector<std::vector<size_t>> bands;
   struct bandStructure {
-    unsigned n = 1000;
+    unsigned n;
     long step;
   } settings;
-  std::vector<point> vertexes;
+  unsigned maxy;
+  unsigned miny;
   std::vector<edge> edges;
-  std::vector<V2> axes;
-  std::vector<V2> lazyProj;
-  void calcAxes() {
-    // in this particular case everything i either vertical or
-    // horizontal
-    axes.resize(edges.size());
-    lazyProj.resize(edges.size());
-    for (unsigned i = 0; i < edges.size() - 1; ++i) {
-      // the axes is perpendicular to the edge
-      axes[i] = {-edges[i].y, edges[i].x};
-      // since I will be passing on this A LOT, and for myself is N^2, let's
-      // avoid the calcualtion!
-      lazyProj[i] = projectOnAxis(axes[i]);
-    }
-  }
 
-  V2 projectOnAxis(const V2 &ax) const {
-    long min = vertexes[0].dot(ax);
-    long max = min;
-    for (unsigned i = 1; i < vertexes.size() - 1; ++i) {
-      long tmp = vertexes[i].dot(ax);
-      if (tmp < min) {
-        min = tmp;
-      } else if (tmp > max) {
-        max = tmp;
+  // to be used in the ctor
+  void updateBands(const size_t i, const edge &e) {
+    // std::cerr << i << ((e.vertical) ? "V " : "H ");
+
+    if (e.vertical) {
+      // std::cerr << e.l << " -> " << e.h << " (";
+      const size_t from = e.l / settings.step;
+      // vertical:
+      const size_t to = e.h / settings.step;
+      // std::cerr << from << " -> " << to << ")\n";
+      if (to >= settings.n) {
+        std::cerr << "#" << settings.n * settings.step << "\n";
+        std::cerr << "*" << to << " " << e.h << " " << settings.step << " "
+                  << maxy << "\n";
       }
+      assert(to < settings.n);
+      for (size_t b = from; b <= to; ++b) {
+        bands[b].push_back(i);
+      }
+    } else {
+      // horizontal:
+      // std::cerr << e.y << " (";
+      size_t b = e.y / settings.step;
+      // std::cerr << b << ")\n";
+      assert(b < settings.n);
+      bands[b].push_back(i);
     }
-    return {min, max};
-  }
-  inline static bool projectionOverlaps(V2 a, V2 b) {
-    return !(a.x < b.y || b.x < a.y);
   }
 
 public:
-  polygon(const std::vector<point> &myvertexes, long lowy, long maxy)
-      : vertexes(myvertexes) {
+  polygon(const std::vector<point> &vertexes, long lowy, long highy)
+      : maxy(highy), miny(lowy) {
     // only works for the given polygon
-    assert(lowy == 0);
-    auto delta = (maxy - lowy);
+    assert(miny == 0);
+    auto delta = (maxy - miny);
+    settings.n = 4000;
     if (delta < settings.n) {
-      settings.n = delta;
+      // we are in the test setting
+      settings.n = 4;
     }
     settings.step = delta / settings.n;
     while (settings.step * settings.n <= maxy) {
       settings.n++;
     }
+    std::cout << settings.n << ": " << settings.step;
+    std::cout << ", delta " << delta << "\n";
     bands.resize(settings.n);
     for (unsigned i = 0; i < vertexes.size() - 1; ++i) {
       edges.emplace_back(vertexes[i], vertexes[i + 1]);
-      assert(maxy >= edges.back().y);
-      if (edges.back().vertical) {
-        // vertical:
-        const size_t to = edges.back().h / settings.step;
-        if (to >= settings.n) {
-          std::cerr << "#" << settings.n * settings.step << "\n";
-          std::cerr << "*" << to << " " << edges.back().h << " "
-                    << settings.step << " " << maxy << "\n";
-        }
-        assert(to < settings.n);
-        for (size_t b = edges.back().l / settings.step; b <= to; ++b) {
-          bands[b].push_back(i);
-        }
-      } else {
-        // horizontal:
-        size_t b = edges.back().y / settings.step;
-        assert(b < settings.n);
-        bands[b].push_back(i);
-      }
+      // assert(maxy >= edges.back().y);
+      //  assert(miny <= edges.back().y);
+      updateBands(edges.size() - 1, edges.back());
     }
     // rosetta uses an elegant modulo, I do not do an extra division per loop
     edges.emplace_back(vertexes.back(), vertexes[0]);
-    {
-      unsigned i = edges.size() - 1;
-      if (edges.back().vertical) {
-        // vertical:
-        const size_t to = edges.back().h / settings.step;
-        if (to >= settings.n) {
-          std::cerr << "#" << settings.n * settings.step << "\n";
-          std::cerr << "*" << to << " " << edges.back().h << " "
-                    << settings.step << " " << maxy << "\n";
-        }
-        assert(to < settings.n);
-        for (size_t b = edges.back().l / settings.step; b <= to; ++b) {
-          bands[b].push_back(i);
-        }
-      } else {
-        // horizontal:
-        size_t b = edges.back().y / settings.step;
-        assert(b < settings.n);
-        bands[b].push_back(i);
-      }
-    }
-    calcAxes();
+    updateBands(edges.size() - 1, edges.back());
   }
 
   polygon(const rectangle &rect)
       : polygon(rect.vertexes(), rect.low.y, rect.high.y) {}
 
-  bool overlaps(const polygon &other) const {
-
-    // loop on these axes
-    for (unsigned i = 0; i < axes.size(); ++i) {
-      auto otherPrj = other.projectOnAxis(axes[i]);
-      if (!projectionOverlaps(otherPrj, lazyProj[i])) {
-        return false;
-      }
-    }
-    // loop on the other axes
-    for (unsigned i = 0; i < other.axes.size(); ++i) {
-      auto otherPrj = projectOnAxis(other.axes[i]);
-      if (!projectionOverlaps(otherPrj, other.lazyProj[i])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   bool PIPCheck(const point &a) const {
     const auto x = a.x;
     const auto y = a.y;
-    // this assumess that perimeter[0] == perimeter.back()
     // we are casting a ray from  point to the right
     const auto band = y / settings.step;
     if (band >= bands.size()) {
       return false;
     }
     unsigned intersections = 0;
+    //    std::cout << y << " " << band << "\n";
 
-    for (unsigned b = (band > 0) ? (band - 1) : 0; b < band + 1; ++b) {
-      if (b >= bands.size()) {
-        continue;
-      }
-      for (const auto &i : bands[b]) {
-        const auto &e = edges[i];
-        if (e.vertical) {
-          // check if the ray passes trought the edge
-          if ((e.l <= y && y <= e.h) && (x <= e.x)) {
-            // the ray is from left to right
-            intersections++;
-            if (e.x == x) { // is on the perimeter
-              return true;
-            }
+    for (const auto &i : bands[band]) {
+      const auto &e = edges[i];
+      if (e.vertical) {
+        // check if the ray passes trought the edge
+        if ((e.l <= y && y <= e.h) && (x <= e.x)) {
+          // the ray is from left to right
+          if (e.x == x) {
+            // is on the perimeter
+            return true;
           }
-        } else if ((e.y == y) && (e.l <= x && x <= e.h)) {
-          // is on the perimeter
-          return true;
+          intersections++;
         }
+      } else if ((e.y == y) && (e.l <= x && x <= e.h)) {
+        // is on the perimeter
+        return true;
       }
     }
+
     return intersections % 2 != 0;
   }
 
@@ -260,44 +203,6 @@ unsigned long area(const point &a, const point &b) {
   return x * y;
 }
 
-// try to create a struct with the perimeter as eges with zylims and
-// direction tow diminuish the number of edge calculations
-
-bool PIPCheck(const point &a, const std::vector<point> &perimeter) {
-  const auto x = a.x;
-  const auto y = a.y;
-  // this assumess that perimeter[0] == perimeter.back()
-  // we are casting a ray from  point to the right
-  auto prev = perimeter[0];
-  unsigned intersections = 0;
-  for (unsigned i = 1; i < perimeter.size(); ++i) {
-    auto edge = perimeter[i] - prev;
-    // assert(edge.x == 0 || edge.y == 0);
-    if (edge.y == 0 && y == perimeter[i].y) {
-      // the edge is horizontal, the point is inside if it is on the edge
-      if ((edge.x > 0) ? (prev.x < x && x < perimeter[i].x)
-                       : (prev.x > x && x > perimeter[i].x)) {
-        intersections = 1;
-        break;
-      }
-    } else {
-      // the edge is vertical
-      if (x < perimeter[i].x) {
-        if ((edge.y > 0) ? (prev.y < y && y < perimeter[i].y)
-                         : (prev.y > y && y > perimeter[i].y)) {
-          if (x == perimeter[i].x) { // the point is on the edge
-            intersections = 1;
-            break;
-          }
-          ++intersections;
-        }
-      }
-    }
-    prev = perimeter[i];
-  }
-  return intersections % 2 != 0;
-}
-//  everithing is public because I do not want to setup getters
 int main() {
 // #define TESTING
 #ifdef TESTING
@@ -350,43 +255,6 @@ int main() {
     }
   }
   std::cout << "biggest area part1: " << maxRectangle << std::endl;
-  // return 0;
-  // looking for points in the rectangle encased by the whole polynomial that
-  // are ouside the polygon
-  /*
-  std::vector<point> excluded;
-    settings.n = maxy / settings.step;
-  {
-      std::vector<std::string> rows(h.y + 1);
-      for (auto &r : rows) {
-        r.assign(h.x + 1, '.');
-      }*/
-  /*  for (long y = 0; y <= h.y; ++y) {
-      for (long x = 0; x <= h.x; ++x) {
-        if (!pl.PIPCheck({x, y})) {
-          excluded.push_back({x, y});
-          //        rows[y][x] = 'x';
-        }
-      }
-    }*/
-  /*
-      for (auto &r : redTiles) {
-        if (rows[r.y][r.x] == 'x') {
-          rows[r.y][r.x] = 'H';
-        }
-        rows[r.y][r.x] = '#';
-      }
-      for (const auto &r : rows) {
-        std::cout << r << std::endl;
-      }
-    }*/
-  unsigned long d = std::abs((redTiles[0] - redTiles.back()).x) +
-                    std::abs((redTiles[0] - redTiles.back()).y);
-  for (unsigned i = 1; i < redTiles.size(); ++i) {
-    auto t = redTiles[i] - redTiles[i - 1];
-    d += std::abs(t.x) + std::abs(t.y);
-  }
-  std::cout << d << "\n";
 
   size_t maxRectangleEncased = 0;
 
@@ -397,27 +265,7 @@ int main() {
       auto A = area(redTiles[i], redTiles[j]);
       rectangle R = {redTiles[i], redTiles[j]};
 
-      bool isInside = true;
-      isInside = tiles.PIPCheck(R);
-      /*for (unsigned rt = 0; rt < redTiles.size(); ++rt) {
-        if (rt == i || rt == j) {
-          continue;
-        }
-        isInside = !R.insideStrict(redTiles[rt]);
-        if (!isInside) {
-          // if another vertex is inside part of the rectangle is ouside
-          break;
-        }
-      }
-      // slower check to verify
-
-      polygon RP = R.inner();
-      isInside = RP.overlaps(tiles);*/
-      //      std::cerr << std::boolalpha << i << " " << j << " " << isInside
-      //      <<
-      //      "\n";
-
-      if (isInside) {
+      if (tiles.PIPCheck(R)) {
         maxRectangleEncased =
             (A > maxRectangleEncased) ? A : maxRectangleEncased;
       }
