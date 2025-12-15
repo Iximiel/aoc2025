@@ -128,3 +128,9 @@ Now I found a way to check if two polygons overlap on rosettacode and I am tryin
 
 In the end I got back to the point in poligon, but I added  bands in syle of subcells in molecular dynamics, so that I will cast the ray only trought edges in a limited band of y values for each point I will control.
 This is FASTER than before, but the answer is wrong, I should do day 10, but I can't do those puzzles IRL, I need to study and I do not want to give up on this, at least for now
+
+
+## Puzzle 10
+
+IRL I can't do these kind of puzzle. Thankfully breadth first search exists and the pc solves the puzzle for me.
+I have the suspect that part 2 will be much much difficult.
