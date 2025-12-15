@@ -134,3 +134,5 @@ This is FASTER than before, but the answer is wrong, I should do day 10, but I c
 
 IRL I can't do these kind of puzzle. Thankfully breadth first search exists and the pc solves the puzzle for me.
 I have the suspect that part 2 will be much much difficult.
+
+and I parsed incorrecly...
